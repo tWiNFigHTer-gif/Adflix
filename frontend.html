@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AdFlix - Endless Ads, Zero Content</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* style.css */
+        :root {
+            --primary-color: #E50914; /* Netflix Red */
+            --background-color: #141414; /* Netflix Black */
+            --text-color: #FFFFFF;
+            --text-secondary-color: #8c8c8c;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* --- Header --- */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.7) 10%, rgba(0,0,0,0));
+            position: fixed;
+            top: 0;
+            width: 100%;
+            box-sizing: border-box;
+            z-index: 100;
+        }
+
+        .logo {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .user-stats {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 1rem;
+        }
+
+        #adcoin-display {
+            background-color: rgba(0,0,0,0.5);
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: 1px solid var(--text-secondary-color);
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            padding-top: 100px;
+        }
+
+        .category {
+            margin-left: 50px;
+            margin-bottom: 40px;
+        }
+
+        .category-title {
+            font-size: 1.4rem;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .ad-row {
+            display: flex;
+            overflow-x: scroll;
+            overflow-y: hidden;
+            padding-bottom: 20px; /* For scrollbar */
+            gap: 10px;
+        }
+        .ad-row::-webkit-scrollbar { display: none; } /* Hide scrollbar */
+
+        .ad-thumbnail {
+            min-width: 250px;
+            height: 140px;
+            background-color: #333;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out;
+            overflow: hidden;
+            position: relative;
+        }
+        .ad-thumbnail:hover {
+            transform: scale(1.1);
+            z-index: 10;
+        }
+        .ad-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* --- Video Player Modal --- */
+        .video-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: none; /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            flex-direction: column;
+        }
+
+        .video-container {
+            width: 80%;
+            max-width: 900px;
+            position: relative;
+            background-color: #000;
+        }
+
+        #ad-video {
+            width: 100%;
+            border-radius: 8px;
+        }
+        
+        .infinite-buffer-container {
+            width: 100%;
+            height: 500px; /* Match typical video height */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .spinner {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid var(--primary-color);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .video-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .control-btn {
+            padding: 10px 25px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #skip-btn {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+        }
+        #skip-btn:active {
+            transform: scale(0.95);
+        }
+
+        #close-modal-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0,0,0,0.5);
+            color: var(--text-color);
+            font-size: 1.5rem;
+            border: 2px solid var(--text-color);
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            line-height: 32px;
+            text-align: center;
+            cursor: pointer;
+            z-index: 1001;
+        }
+        
+        #feedback-message {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0,0,0,0.8);
+            padding: 10px 20px;
+            border-radius: 5px;
+            color: var(--primary-color);
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        /* --- Popups and Annoyances --- */
+        .popup-ad {
+            position: fixed;
+            width: 300px;
+            height: 250px;
+            background: url('https://placehold.co/300x250/222/fff?text=YOU+WON!') center/cover;
+            border: 3px solid var(--primary-color);
+            border-radius: 10px;
+            z-index: 2000;
+            box-shadow: 0 0 20px rgba(229, 9, 20, 0.8);
+            animation: shake 0.5s infinite alternate;
+        }
+        .popup-close-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            color: black;
+            border: 1px solid black;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 18px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        @keyframes shake {
+            from { transform: translateX(-5px); }
+            to { transform: translateX(5px); }
+        }
+
+        #smile-prompt {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+            display: none; /* Hidden by default */
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <a href="#" class="logo">AdFlix</a>
+        <div class="user-stats">
+            <div id="adcoin-display">AdCoins: 0 🪙</div>
+        </div>
+    </header>
+
+    <main class="main-content" id="main-content"></main>
+
+    <div class="video-modal" id="video-modal">
+        <button id="close-modal-btn">&times;</button>
+        <div class="video-container">
+            <video id="ad-video" playsinline></video>
+            <div id="infinite-buffer" class="infinite-buffer-container" style="display: none;">
+                <div class="spinner"></div>
+                <p>Your ad is almost ready... please wait.</p>
+            </div>
+            <div id="smile-prompt">SMILE TO PLAY THE AD! :)</div>
+        </div>
+        <div class="video-controls">
+            <button id="skip-btn" class="control-btn">Skip Ad</button>
+            <div id="feedback-message"></div>
+        </div>
+    </div>
+    
+    <!-- This script loads the face-api library. It's deferred to not block page rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <script>
+        // main.js
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- CONFIGURATION ---
+            // Easily enable or disable features here
+            const CONFIG = {
+                USE_WEBCAM_FEATURE: true, // Set to false to disable smile detection
+                API_URL: 'http://localhost:3000/api/ads',
+                // *** FIXED THE MODEL URL TO A RELIABLE SOURCE ***
+                FACEAPI_MODEL_URL: 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights'
+            };
+
+            // --- DOM Elements ---
+            const mainContent = document.getElementById('main-content');
+            const videoModal = document.getElementById('video-modal');
+            const adVideo = document.getElementById('ad-video');
+            const infiniteBuffer = document.getElementById('infinite-buffer');
+            const skipBtn = document.getElementById('skip-btn');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const adcoinDisplay = document.getElementById('adcoin-display');
+            const smilePrompt = document.getElementById('smile-prompt');
+            const feedbackMessage = document.getElementById('feedback-message');
+
+            // --- State Variables ---
+            let adCoins = parseInt(localStorage.getItem('adCoins')) || 0;
+            let adWatchCount = parseInt(localStorage.getItem('adWatchCount')) || 0;
+            let adPlaylist = [];
+            let currentAdIndex = 0;
+            let faceApiLoaded = false;
+            let smileDetectionInterval = null;
+
+            // --- Core Functions ---
+            
+            const showFeedback = (message) => {
+                feedbackMessage.innerText = message;
+                feedbackMessage.style.opacity = '1';
+                setTimeout(() => {
+                    feedbackMessage.style.opacity = '0';
+                }, 2000);
+            };
+
+            const updateAdCoinDisplay = () => {
+                adcoinDisplay.innerHTML = `AdCoins: ${adCoins} 🪙`;
+                localStorage.setItem('adCoins', adCoins);
+            };
+
+            const loadFaceApiModels = async () => {
+                if (!CONFIG.USE_WEBCAM_FEATURE) return;
+                try {
+                    console.log("Loading FaceAPI models...");
+                    await Promise.all([
+                        faceapi.nets.tinyFaceDetector.loadFromUri(CONFIG.FACEAPI_MODEL_URL),
+                        faceapi.nets.faceExpressionNet.loadFromUri(CONFIG.FACEAPI_MODEL_URL)
+                    ]);
+                    faceApiLoaded = true;
+                    console.log("FaceAPI models loaded successfully.");
+                } catch (error) {
+                    console.error("Fatal Error: Could not load FaceAPI models from CDN.", error);
+                    showFeedback("Couldn't load Smile-Detector AI.");
+                }
+            };
+
+            const fetchAds = async () => {
+                try {
+                    const response = await fetch(CONFIG.API_URL);
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    const data = await response.json();
+                    renderContent(data.categories);
+                    adPlaylist = data.categories.flatMap(category => category.ads);
+                } catch (error) {
+                    mainContent.innerHTML = `<p style="text-align: center; color: var(--primary-color);">Could not connect to the AdFlix backend. Is it running? Check the console (F12) for more info.</p>`;
+                    console.error('Error fetching ads:', error);
+                }
+            };
+
+            const renderContent = (categories) => {
+                mainContent.innerHTML = '';
+                categories.forEach(category => {
+                    const categoryDiv = document.createElement('div');
+                    categoryDiv.className = 'category';
+                    categoryDiv.innerHTML = `<h2 class="category-title">${category.title}</h2>`;
+                    
+                    const adRow = document.createElement('div');
+                    adRow.className = 'ad-row';
+
+                    category.ads.forEach(ad => {
+                        const adThumb = document.createElement('div');
+                        adThumb.className = 'ad-thumbnail';
+                        adThumb.innerHTML = `<img src="${ad.thumbnail}" alt="${ad.title}" onerror="this.onerror=null;this.src='https://placehold.co/400x225/E50914/FFFFFF?text=Error';">`;
+                        adThumb.onclick = () => openPlayerWithAd(ad);
+                        adRow.appendChild(adThumb);
+                    });
+
+                    categoryDiv.appendChild(adRow);
+                    mainContent.appendChild(categoryDiv);
+                });
+            };
+
+            const openPlayerWithAd = (ad) => {
+                videoModal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+
+                // Handle the infinite buffer case
+                if (ad.videoUrl === 'infinite') {
+                    adVideo.style.display = 'none';
+                    infiniteBuffer.style.display = 'flex';
+                    smilePrompt.style.display = 'none';
+                    return;
+                }
+                
+                // Normal ad playback
+                adVideo.style.display = 'block';
+                infiniteBuffer.style.display = 'none';
+                
+                let adToPlay = ad;
+                adWatchCount++;
+                localStorage.setItem('adWatchCount', adWatchCount);
+
+                // AdCeption: Every 3rd ad is an ad about ads
+                if (adWatchCount % 3 === 0) {
+                    const adceptionAd = adPlaylist.find(a => a.id === 6);
+                    if (adceptionAd) {
+                        adToPlay = adceptionAd;
+                        showFeedback("AdCeption Activated!");
+                    }
+                }
+                
+                adVideo.src = adToPlay.videoUrl;
+                adVideo.muted = false;
+                adVideo.play().catch(e => console.warn("Autoplay was prevented by browser. This is expected."));
+
+                // Optional Smile Detection
+                if (CONFIG.USE_WEBCAM_FEATURE && faceApiLoaded) {
+                    startSmileDetection();
+                }
+            };
+
+            const startSmileDetection = async () => {
+                adVideo.pause();
+                smilePrompt.style.display = 'block';
+                
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    const tempVideoEl = document.createElement('video');
+                    tempVideoEl.srcObject = stream;
+                    tempVideoEl.play();
+
+                    smileDetectionInterval = setInterval(async () => {
+                        const detections = await faceapi.detectSingleFace(tempVideoEl, new faceapi.TinyFaceDetectorOptions()).withFaceExpressions();
+                        if (detections && detections.expressions.happy > 0.5) {
+                            console.log("Smile detected! Playing ad.");
+                            smilePrompt.style.display = 'none';
+                            adVideo.play();
+                            clearInterval(smileDetectionInterval);
+                            stream.getTracks().forEach(track => track.stop());
+                        } else {
+                            console.log("Waiting for a smile...");
+                        }
+                    }, 1000);
+                } catch (err) {
+                    console.error("Webcam access denied or error:", err);
+                    smilePrompt.innerText = "Smile-detection failed. Enjoy the ad anyway!";
+                    adVideo.play(); // Play anyway if webcam fails
+                }
+            };
+
+            const closePlayer = () => {
+                adVideo.pause();
+                adVideo.src = '';
+                if (smileDetectionInterval) clearInterval(smileDetectionInterval);
+                videoModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            };
+
+            const createPopup = () => {
+                const popup = document.createElement('div');
+                popup.className = 'popup-ad';
+                popup.style.top = `${Math.random() * 60 + 10}vh`;
+                popup.style.left = `${Math.random() * 60 + 10}vw`;
+
+                const closePopupBtn = document.createElement('div');
+                closePopupBtn.className = 'popup-close-btn';
+                closePopupBtn.innerText = 'X';
+                closePopupBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    document.body.removeChild(popup);
+                    createPopup(); // Clicking close opens another one
+                    showFeedback("Did you really think it would be that easy?");
+                };
+
+                popup.appendChild(closePopupBtn);
+                document.body.appendChild(popup);
+            };
+
+            // --- Event Listeners ---
+
+            skipBtn.addEventListener('click', () => {
+                if(adVideo.currentTime > 0) {
+                    adVideo.currentTime -= 10;
+                    showFeedback('Ad extended by 10s!');
+                }
+            });
+            
+            closeModalBtn.addEventListener('click', () => {
+                showFeedback("Nice try!");
+                createPopup();
+                createPopup();
+                createPopup();
+            });
+            
+            adVideo.addEventListener('timeupdate', () => {
+                if (adVideo.paused || adVideo.seeking) return;
+                // Award AdCoins for every 2 seconds of watch time
+                if (Math.floor(adVideo.currentTime) % 2 === 0) {
+                    adCoins++;
+                    updateAdCoinDisplay();
+                }
+            });
+
+            adVideo.addEventListener('ended', () => {
+                // Play the next ad in the playlist automatically
+                currentAdIndex = (currentAdIndex + 1) % adPlaylist.length;
+                openPlayerWithAd(adPlaylist[currentAdIndex]);
+            });
+
+            // --- Initialization ---
+            updateAdCoinDisplay();
+            fetchAds();
+            loadFaceApiModels(); // Pre-load models on page load
+        });
+    </script>
+</body>
+</html>
