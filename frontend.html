@@ -298,6 +298,10 @@
 
             // --- DOM Elements ---
             const mainContent = document.getElementById('main-content');
+            // --- Smile Replay State ---
+            let lastFiveAds = [];
+            let smileReplayActive = false;
+            let smileReplayIndex = 0;
             const videoModal = document.getElementById('video-modal');
             const adVideo = document.getElementById('ad-video');
             const infiniteBuffer = document.getElementById('infinite-buffer');
@@ -359,6 +363,20 @@
                 }
             };
 
+            const fetchRandomAd = async () => {
+                try {
+                    const response = await fetch('http://localhost:3000/api/random-ad');
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    const randomAd = await response.json();
+                    return randomAd;
+                } catch (error) {
+                    console.error('Error fetching random ad:', error);
+                    // Return a fallback ad if the request fails
+                    return adPlaylist[Math.floor(Math.random() * adPlaylist.length)];
+                }
+            };
+
+            // NOTE: For thumbnails to work, use direct image URLs (ending in .jpg, .png, etc.) or serve your own images from a /thumbnails folder.
             const renderContent = (categories) => {
                 mainContent.innerHTML = '';
                 categories.forEach(category => {
@@ -393,33 +411,86 @@
                     smilePrompt.style.display = 'none';
                     return;
                 }
-                
+
                 // Normal ad playback
                 adVideo.style.display = 'block';
                 infiniteBuffer.style.display = 'none';
-                
+
                 let adToPlay = ad;
-                adWatchCount++;
-                localStorage.setItem('adWatchCount', adWatchCount);
+
+                // Smile replay logic
+                if (!smileReplayActive) {
+                    lastFiveAds.push(ad);
+                    if (lastFiveAds.length > 5) lastFiveAds.shift();
+                    adWatchCount++;
+                    localStorage.setItem('adWatchCount', adWatchCount);
+                }
 
                 // AdCeption: Every 3rd ad is an ad about ads
-                if (adWatchCount % 3 === 0) {
+                if (adWatchCount % 3 === 0 && !smileReplayActive) {
                     const adceptionAd = adPlaylist.find(a => a.id === 6);
                     if (adceptionAd) {
                         adToPlay = adceptionAd;
                         showFeedback("AdCeption Activated!");
                     }
                 }
-                
+
                 adVideo.src = adToPlay.videoUrl;
                 adVideo.muted = false;
                 adVideo.play().catch(e => console.warn("Autoplay was prevented by browser. This is expected."));
 
-                // Optional Smile Detection
-                if (CONFIG.USE_WEBCAM_FEATURE && faceApiLoaded) {
+                // After every 5 ads, trigger smile recognition for replay
+                if (!smileReplayActive && lastFiveAds.length === 5) {
+                    if (CONFIG.USE_WEBCAM_FEATURE && faceApiLoaded) {
+                        startSmileReplayDetection();
+                    }
+                } else if (CONFIG.USE_WEBCAM_FEATURE && faceApiLoaded) {
                     startSmileDetection();
                 }
             };
+
+            // Smile replay detection logic
+            const startSmileReplayDetection = async () => {
+                adVideo.pause();
+                smilePrompt.innerText = "SMILE TO REPLAY THE LAST 5 ADS! :)";
+                smilePrompt.style.display = 'block';
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    const tempVideoEl = document.createElement('video');
+                    tempVideoEl.srcObject = stream;
+                    tempVideoEl.play();
+                    smileDetectionInterval = setInterval(async () => {
+                        const detections = await faceapi.detectSingleFace(tempVideoEl, new faceapi.TinyFaceDetectorOptions()).withFaceExpressions();
+                        if (detections && detections.expressions.happy > 0.5) {
+                            smilePrompt.innerText = "Not Enough!!";
+                            setTimeout(() => { smilePrompt.style.display = 'none'; }, 2000);
+                            clearInterval(smileDetectionInterval);
+                            stream.getTracks().forEach(track => track.stop());
+                            // Start replaying last 5 ads
+                            smileReplayActive = true;
+                            smileReplayIndex = 0;
+                            playNextSmileReplayAd();
+                        }
+                    }, 1000);
+                } catch (err) {
+                    smilePrompt.innerText = "Smile-detection failed. Enjoy the ad anyway!";
+                    adVideo.play();
+                }
+            };
+
+            function playNextSmileReplayAd() {
+                if (smileReplayIndex < lastFiveAds.length) {
+                    setTimeout(() => {
+                        openPlayerWithAd(lastFiveAds[smileReplayIndex]);
+                        smileReplayIndex++;
+                    }, 500);
+                } else {
+                    // End of replay, reset state
+                    smileReplayActive = false;
+                    smileReplayIndex = 0;
+                    lastFiveAds = [];
+                }
+            }
 
             const startSmileDetection = async () => {
                 adVideo.pause();
@@ -503,10 +574,20 @@
                 }
             });
 
-            adVideo.addEventListener('ended', () => {
-                // Play the next ad in the playlist automatically
-                currentAdIndex = (currentAdIndex + 1) % adPlaylist.length;
-                openPlayerWithAd(adPlaylist[currentAdIndex]);
+            adVideo.addEventListener('ended', async () => {
+                if (smileReplayActive) {
+                    playNextSmileReplayAd();
+                } else {
+                    // Play a random ad from all available videos
+                    const randomAd = await fetchRandomAd();
+                    if (randomAd) {
+                        openPlayerWithAd(randomAd);
+                    } else {
+                        // Fallback to playlist if random ad fails
+                        currentAdIndex = (currentAdIndex + 1) % adPlaylist.length;
+                        openPlayerWithAd(adPlaylist[currentAdIndex]);
+                    }
+                }
             });
 
             // --- Initialization ---
