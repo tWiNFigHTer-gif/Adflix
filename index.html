@@ -324,7 +324,13 @@
             // Easily enable or disable features here
             const CONFIG = {
                 USE_WEBCAM_FEATURE: true, // Set to false to disable smile detection
-                API_URL: 'http://localhost:3000/api/ads',
+                // Dynamic API URL - works for both local development and production
+                API_URL: window.location.hostname === 'localhost' 
+                    ? 'http://localhost:3000/api/ads'
+                    : '/api/ads', // For production deployment
+                BASE_URL: window.location.hostname === 'localhost'
+                    ? 'http://localhost:3000'
+                    : '', // For production deployment
                 // *** FIXED THE MODEL URL TO A RELIABLE SOURCE ***
                 FACEAPI_MODEL_URL: 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights'
             };
@@ -596,7 +602,7 @@
 
             const fetchRandomAd = async () => {
                 try {
-                    const response = await fetch(`http://localhost:3000/api/random-ad?coins=${adCoins}`);
+                    const response = await fetch(`${CONFIG.BASE_URL}/api/random-ad?coins=${adCoins}`);
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     const randomAd = await response.json();
                     return randomAd;
@@ -609,7 +615,7 @@
 
             const fetchLoopAds = async () => {
                 try {
-                    const response = await fetch(`http://localhost:3000/api/loop-ads?coins=${adCoins}`);
+                    const response = await fetch(`${CONFIG.BASE_URL}/api/loop-ads?coins=${adCoins}`);
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     const data = await response.json();
                     return data.ads;

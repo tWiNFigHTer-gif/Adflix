@@ -10,7 +10,7 @@ const morgan = require('morgan'); // Middleware for logging HTTP requests
 
 // --- Server Configuration ---
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // --- Middleware Setup ---
 
@@ -27,7 +27,14 @@ app.use(morgan('dev'));
 //    will look for a file in the 'videos' folder in the same directory.
 app.use('/videos', express.static(path.join(__dirname, 'videos')));
 
-
+// --- Helper Functions ---
+// Get the base URL for video links (development vs production)
+function getBaseUrl(req) {
+  if (process.env.NODE_ENV === 'production') {
+    return `${req.protocol}://${req.get('host')}`;
+  }
+  return `http://localhost:${PORT}`;
+}
 
 // --- In-Memory "Database" of Ads ---
 const baseCategories = [
@@ -120,7 +127,7 @@ const baseCategories = [
   }
 ];
 
-function getRandomizedCategories(userCoins = 0) {
+function getRandomizedCategories(userCoins = 0, baseUrl = '') {
   // Determine which sections are unlocked based on coins
   const unlockedSections = [1]; // Section 1 is always unlocked
   if (userCoins >= 10) {
@@ -136,10 +143,18 @@ function getRandomizedCategories(userCoins = 0) {
     unlockedSections.push(5); // Ultra premium sections
   }
   
-  // Filter categories based on unlocked sections - NO random extra ads
+  // Filter categories based on unlocked sections and update video URLs
   return baseCategories.filter(category => {
     return unlockedSections.includes(category.section);
-  });
+  }).map(category => ({
+    ...category,
+    ads: category.ads.map(ad => ({
+      ...ad,
+      videoUrl: ad.videoUrl.includes('localhost') ? 
+        ad.videoUrl.replace(/http:\/\/localhost:\d+/, baseUrl) : 
+        ad.videoUrl
+    }))
+  }));
 }
 
 // --- API Endpoints ---
@@ -150,7 +165,7 @@ function getRandomizedCategories(userCoins = 0) {
  * @access  Public
  */
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend.html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 /**
@@ -161,7 +176,8 @@ app.get('/', (req, res) => {
  */
 app.get('/api/ads', (req, res) => {
   const userCoins = parseInt(req.query.coins) || 0;
-  const randomizedCategories = getRandomizedCategories(userCoins);
+  const baseUrl = getBaseUrl(req);
+  const randomizedCategories = getRandomizedCategories(userCoins, baseUrl);
   res.status(200).json({ categories: randomizedCategories });
 });
 
@@ -173,9 +189,10 @@ app.get('/api/ads', (req, res) => {
  */
 app.get('/api/random-ad', (req, res) => {
   const userCoins = parseInt(req.query.coins) || 0;
+  const baseUrl = getBaseUrl(req);
   
   // Get ads for the playing loop based on annoyance levels and coin thresholds
-  const loopAds = getLoopAds(userCoins);
+  const loopAds = getLoopAds(userCoins, baseUrl);
   
   // Return a random ad from the loop
   const randomAd = loopAds[Math.floor(Math.random() * loopAds.length)];
@@ -190,19 +207,28 @@ app.get('/api/random-ad', (req, res) => {
  */
 app.get('/api/loop-ads', (req, res) => {
   const userCoins = parseInt(req.query.coins) || 0;
-  const loopAds = getLoopAds(userCoins);
+  const baseUrl = getBaseUrl(req);
+  const loopAds = getLoopAds(userCoins, baseUrl);
   res.status(200).json({ ads: loopAds, count: loopAds.length });
 });
 
-function getLoopAds(userCoins = 0) {
+function getLoopAds(userCoins = 0, baseUrl = '') {
   const loopAds = [];
+  
+  // Helper function to fix video URLs
+  const fixVideoUrl = (ad) => ({
+    ...ad,
+    videoUrl: ad.videoUrl.includes('localhost') ? 
+      ad.videoUrl.replace(/http:\/\/localhost:\d+/, baseUrl) : 
+      ad.videoUrl
+  });
   
   // Rule 1: Always include ads with annoyance < 5 from "Critically Acclaimed Annoyances"
   const criticallyAcclaimedCategory = baseCategories.find(cat => cat.title === "Critically Acclaimed Annoyances");
   if (criticallyAcclaimedCategory) {
     criticallyAcclaimedCategory.ads.forEach(ad => {
       if (ad.annoyance_level < 5) {
-        loopAds.push(ad);
+        loopAds.push(fixVideoUrl(ad));
       }
     });
   }
@@ -213,7 +239,7 @@ function getLoopAds(userCoins = 0) {
     if (jinglesCategory) {
       jinglesCategory.ads.forEach(ad => {
         if (ad.annoyance_level < 8) {
-          loopAds.push(ad);
+          loopAds.push(fixVideoUrl(ad));
         }
       });
     }
@@ -225,7 +251,7 @@ function getLoopAds(userCoins = 0) {
     if (jinglesCategory) {
       jinglesCategory.ads.forEach(ad => {
         if (ad.annoyance_level >= 8) {
-          loopAds.push(ad);
+          loopAds.push(fixVideoUrl(ad));
         }
       });
     }
@@ -234,7 +260,7 @@ function getLoopAds(userCoins = 0) {
     const adsAboutAdsCategory = baseCategories.find(cat => cat.title === "Ads About Ads");
     if (adsAboutAdsCategory) {
       adsAboutAdsCategory.ads.forEach(ad => {
-        loopAds.push(ad);
+        loopAds.push(fixVideoUrl(ad));
       });
     }
   }
@@ -278,7 +304,8 @@ app.post('/api/watch-complete', express.json(), (req, res) => {
  */
 app.get('/api/ads/unreliable', (req, res) => {
     if (Math.random() > 0.5) {
-        const randomizedCategories = getRandomizedCategories();
+        const baseUrl = getBaseUrl(req);
+        const randomizedCategories = getRandomizedCategories(0, baseUrl);
         res.status(200).json({ categories: randomizedCategories });
     } else {
         res.status(500).json({ error: "Oops! The ad server spontaneously combusted. Please try again." });
@@ -292,7 +319,8 @@ app.get('/api/ads/unreliable', (req, res) => {
  */
 app.get('/api/ads/slow', (req, res) => {
     setTimeout(() => {
-        const randomizedCategories = getRandomizedCategories();
+        const baseUrl = getBaseUrl(req);
+        const randomizedCategories = getRandomizedCategories(0, baseUrl);
         res.status(200).json({ categories: randomizedCategories });
     }, 3000); // Waits 3 seconds before sending the response
 });
