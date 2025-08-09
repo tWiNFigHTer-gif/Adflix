@@ -46,14 +46,14 @@ const baseCategories = [
     unlockCost: 0,
     ads: [
       // Your local video collection with fun names
-      { id: 1, title: "Ad Attack", thumbnail: "https://placehold.co/400x225/E50914/FFFFFF?text=Ad+Attack", videoUrl: `http://localhost:${PORT}/videos/ad1.mp4`, description: "Your own custom ad content.", annoyance_level: 3 },
-      { id: 2, title: "Stream Spam", thumbnail: "https://placehold.co/400x225/E50914/FFFFFF?text=Stream+Spam", videoUrl: `http://localhost:${PORT}/videos/ad2.mp4`, description: "Another custom ad from your collection.", annoyance_level: 4 },
-      { id: 3, title: "Commercial Crush", thumbnail: "https://placehold.co/400x225/E50914/FFFFFF?text=Commercial+Crush", videoUrl: `http://localhost:${PORT}/videos/ad3.mp4`, description: "Custom advertising excellence.", annoyance_level: 2 },
-      { id: 4, title: "Promo Parade", thumbnail: "https://placehold.co/400x225/E50914/FFFFFF?text=Promo+Parade", videoUrl: `http://localhost:${PORT}/videos/ad4.mp4`, description: "More local ad content.", annoyance_level: 5 },
-      { id: 5, title: "Binge Break", thumbnail: "https://placehold.co/400x225/E50914/FFFFFF?text=Binge+Break", videoUrl: `http://localhost:${PORT}/videos/ad6.mp4`, description: "Your premium local content.", annoyance_level: 3 },
-      { id: 6, title: "Ad Avalanche", thumbnail: "https://placehold.co/400x225/8B4513/FFFFFF?text=Ad+Avalanche", videoUrl: `http://localhost:${PORT}/videos/Snickers.mp4`, description: "You're not you when you're hungry.", annoyance_level: 4 },
-      { id: 7, title: "Teaser Terror", thumbnail: "https://placehold.co/400x225/87CEEB/FFFFFF?text=Teaser+Terror", videoUrl: `http://localhost:${PORT}/videos/Vanamala Washing Soap.mp4`, description: "Clean clothes, clean conscience.", annoyance_level: 3 },
-      { id: 8, title: "Spot Storm", thumbnail: "https://placehold.co/400x225/9932CC/FFFFFF?text=Spot+Storm", videoUrl: `http://localhost:${PORT}/videos/Vinsmera.mp4`, description: "The mysterious product you never knew you needed.", annoyance_level: 4 }
+      { id: 1, title: "Ad Attack", thumbnail: "https://placehold.co/400x225/E50914/FFFFFF?text=Ad+Attack", videoUrl: '/videos/ad1.mp4`, description: "Your own custom ad content.", annoyance_level: 3 },
+      { id: 2, title: "Stream Spam", thumbnail: "https://placehold.co/400x225/E50914/FFFFFF?text=Stream+Spam", videoUrl: `/videos/ad2.mp4`, description: "Another custom ad from your collection.", annoyance_level: 4 },
+      { id: 3, title: "Commercial Crush", thumbnail: "https://placehold.co/400x225/E50914/FFFFFF?text=Commercial+Crush", videoUrl: `/videos/ad3.mp4`, description: "Custom advertising excellence.", annoyance_level: 2 },
+      { id: 4, title: "Promo Parade", thumbnail: "https://placehold.co/400x225/E50914/FFFFFF?text=Promo+Parade", videoUrl: `/videos/ad4.mp4`, description: "More local ad content.", annoyance_level: 5 },
+      { id: 5, title: "Binge Break", thumbnail: "https://placehold.co/400x225/E50914/FFFFFF?text=Binge+Break", videoUrl: `/videos/ad6.mp4`, description: "Your premium local content.", annoyance_level: 3 },
+      { id: 6, title: "Ad Avalanche", thumbnail: "https://placehold.co/400x225/8B4513/FFFFFF?text=Ad+Avalanche", videoUrl: `/videos/Snickers.mp4`, description: "You're not you when you're hungry.", annoyance_level: 4 },
+      { id: 7, title: "Teaser Terror", thumbnail: "https://placehold.co/400x225/87CEEB/FFFFFF?text=Teaser+Terror", videoUrl: `/videos/Vanamala Washing Soap.mp4`, description: "Clean clothes, clean conscience.", annoyance_level: 3 },
+      { id: 8, title: "Spot Storm", thumbnail: "https://placehold.co/400x225/9932CC/FFFFFF?text=Spot+Storm", videoUrl: `/videos/Vinsmera.mp4`, description: "The mysterious product you never knew you needed.", annoyance_level: 4 }
     ]
   },
   // Second Section - Unlocks at 10 coins
@@ -64,12 +64,12 @@ const baseCategories = [
     unlockCost: 10,
     ads: [
       // Your local jingle collection with fun names
-      { id: 9, title: "Break Bomb", thumbnail: "https://placehold.co/400x225/FFD700/000000?text=Break+Bomb", videoUrl: `http://localhost:${PORT}/videos/jingle1.mp4`, description: "A jingle you can't forget.", annoyance_level: 7 },
-      { id: 10, title: "Pause Plague", thumbnail: "https://placehold.co/400x225/FFD700/000000?text=Pause+Plague", videoUrl: `http://localhost:${PORT}/videos/jingle2.mp4`, description: "Another unforgettable jingle.", annoyance_level: 6 },
-      { id: 11, title: "Jingle Jungle", thumbnail: "https://placehold.co/400x225/FFD700/000000?text=Jingle+Jungle", videoUrl: `http://localhost:${PORT}/videos/jingle3.mp4`, description: "Yet another jingle.", annoyance_level: 8 },
-      { id: 12, title: "Melody Mayhem", thumbnail: "https://placehold.co/400x225/FFD700/000000?text=Melody+Mayhem", videoUrl: `http://localhost:${PORT}/videos/jingle4.mp4`, description: "Jingle all the way.", annoyance_level: 9 },
-      { id: 13, title: "Tune Tornado", thumbnail: "https://placehold.co/400x225/FFD700/000000?text=Tune+Tornado", videoUrl: `http://localhost:${PORT}/videos/jingle5.mp4`, description: "The final jingle.", annoyance_level: 8 },
-      { id: 14, title: "Radio Rampage", thumbnail: "https://placehold.co/400x225/FF6B35/000000?text=Radio+Rampage", videoUrl: `http://localhost:${PORT}/videos/kukku fm.mp4`, description: "Your favorite radio station advertisement.", annoyance_level: 6 }
+      { id: 9, title: "Break Bomb", thumbnail: "https://placehold.co/400x225/FFD700/000000?text=Break+Bomb", videoUrl: `/videos/jingle1.mp4`, description: "A jingle you can't forget.", annoyance_level: 7 },
+      { id: 10, title: "Pause Plague", thumbnail: "https://placehold.co/400x225/FFD700/000000?text=Pause+Plague", videoUrl: `/videos/jingle2.mp4`, description: "Another unforgettable jingle.", annoyance_level: 6 },
+      { id: 11, title: "Jingle Jungle", thumbnail: "https://placehold.co/400x225/FFD700/000000?text=Jingle+Jungle", videoUrl: `/videos/jingle3.mp4`, description: "Yet another jingle.", annoyance_level: 8 },
+      { id: 12, title: "Melody Mayhem", thumbnail: "https://placehold.co/400x225/FFD700/000000?text=Melody+Mayhem", videoUrl: `/videos/jingle4.mp4`, description: "Jingle all the way.", annoyance_level: 9 },
+      { id: 13, title: "Tune Tornado", thumbnail: "https://placehold.co/400x225/FFD700/000000?text=Tune+Tornado", videoUrl: `/videos/jingle5.mp4`, description: "The final jingle.", annoyance_level: 8 },
+      { id: 14, title: "Radio Rampage", thumbnail: "https://placehold.co/400x225/FF6B35/000000?text=Radio+Rampage", videoUrl: `/videos/kukku fm.mp4`, description: "Your favorite radio station advertisement.", annoyance_level: 6 }
     ]
   },
   // Third Section - Unlocks at 35 coins
@@ -81,8 +81,8 @@ const baseCategories = [
     ads: [
       { id: 6, title: "The AdFlix Story", thumbnail: "https://placehold.co/400x225/8A2BE2/FFFFFF?text=AdFlix+Meta", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4", description: "An inspiring ad about our mission to bring you more ads.", annoyance_level: 8 },
       // High-annoyance local videos
-      { id: 31, title: "Local Ad 4", thumbnail: "https://placehold.co/400x225/8A2BE2/FFFFFF?text=Local+Ad4", videoUrl: `http://localhost:${PORT}/videos/ad4.mp4`, description: "More local ad content.", annoyance_level: 5 },
-      { id: 15, title: "Vinsmera Commercial", thumbnail: "https://placehold.co/400x225/8A2BE2/FFFFFF?text=Vinsmera", videoUrl: `http://localhost:${PORT}/videos/Vinsmera.mp4`, description: "The mysterious product you never knew you needed.", annoyance_level: 9 }
+      { id: 31, title: "Local Ad 4", thumbnail: "https://placehold.co/400x225/8A2BE2/FFFFFF?text=Local+Ad4", videoUrl: `/videos/ad4.mp4`, description: "More local ad content.", annoyance_level: 5 },
+      { id: 15, title: "Vinsmera Commercial", thumbnail: "https://placehold.co/400x225/8A2BE2/FFFFFF?text=Vinsmera", videoUrl: `/videos/Vinsmera.mp4`, description: "The mysterious product you never knew you needed.", annoyance_level: 9 }
     ]
   },
   // Additional premium sections
