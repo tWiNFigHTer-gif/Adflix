@@ -208,6 +208,33 @@ app.get('/debug', (req, res) => {
 });
 
 /**
+ * @route   GET /test
+ * @desc    Simple test endpoint to verify routing works
+ * @access  Public
+ */
+app.get('/test', (req, res) => {
+  res.status(200).json({ 
+    message: 'Server is working!', 
+    timestamp: new Date().toISOString(),
+    method: req.method,
+    url: req.url
+  });
+});
+
+/**
+ * @route   GET /api/test
+ * @desc    Simple API test endpoint
+ * @access  Public
+ */
+app.get('/api/test', (req, res) => {
+  res.status(200).json({ 
+    message: 'API routing is working!', 
+    endpoint: '/api/test',
+    timestamp: new Date().toISOString()
+  });
+});
+
+/**
  * @route   GET /api/ads
  * @desc    Get all ad categories and their ads. This is the primary endpoint for the frontend.
  * @query   coins - Number of AdCoins the user has (for section unlocking)
