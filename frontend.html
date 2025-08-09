@@ -244,6 +244,39 @@
             to { transform: translateX(5px); }
         }
 
+        @keyframes partyGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes partyPulse {
+            from { transform: translate(-50%, -50%) scale(1); }
+            to { transform: translate(-50%, -50%) scale(1.05); }
+        }
+
+        @keyframes confettiFall {
+            0% { 
+                transform: translateY(-10px) rotate(0deg);
+                opacity: 1;
+            }
+            100% { 
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes partyFloat {
+            0%, 100% { 
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0.8;
+            }
+            50% { 
+                transform: translateY(-20px) rotate(180deg);
+                opacity: 1;
+            }
+        }
+
         #smile-prompt {
             color: var(--primary-color);
             font-size: 1.5rem;
@@ -312,10 +345,13 @@
             const feedbackMessage = document.getElementById('feedback-message');
 
             // --- State Variables ---
-            let adCoins = parseInt(localStorage.getItem('adCoins')) || 0;
+            let adCoins = 0; // Always start with 0 coins
+            let lastUnlockedSection = 1; // Always start with section 1 only
             let adWatchCount = parseInt(localStorage.getItem('adWatchCount')) || 0;
             let adPlaylist = [];
             let currentAdIndex = 0;
+            let currentAdId = null;
+            let adStartTime = null;
             let faceApiLoaded = false;
             let smileDetectionInterval = null;
 
@@ -332,6 +368,201 @@
             const updateAdCoinDisplay = () => {
                 adcoinDisplay.innerHTML = `AdCoins: ${adCoins} 🪙`;
                 localStorage.setItem('adCoins', adCoins);
+                checkForNewUnlocks(adCoins);
+            };
+
+            const checkForNewUnlocks = (coins) => {
+                let newUnlocks = [];
+                let shouldUpdateLoop = false;
+                
+                // Check for section unlocks
+                if (coins >= 10 && lastUnlockedSection < 2) {
+                    newUnlocks.push("Jingles That Will Haunt Your Dreams");
+                    lastUnlockedSection = 2;
+                    shouldUpdateLoop = true;
+                }
+                
+                if (coins >= 20 && lastUnlockedSection < 3) {
+                    newUnlocks.push("Premium Annoyance Collection");
+                    lastUnlockedSection = 3;
+                    shouldUpdateLoop = true;
+                }
+                
+                if (coins >= 35 && lastUnlockedSection < 4) {
+                    newUnlocks.push("Ads About Ads");
+                    lastUnlockedSection = 4;
+                    shouldUpdateLoop = true;
+                }
+                
+                if (coins >= 50 && lastUnlockedSection < 5) {
+                    newUnlocks.push("Ultra Mega Premium Chaos");
+                    lastUnlockedSection = 5;
+                    shouldUpdateLoop = true;
+                }
+                
+                // Check for loop progression thresholds (10 and 35 coins)
+                if (coins === 10) {
+                    newUnlocks.push("Jingle Ads added to loop!");
+                    shouldUpdateLoop = true;
+                }
+                
+                if (coins === 35) {
+                    newUnlocks.push("High Annoyance Ads added to loop!");
+                    shouldUpdateLoop = true;
+                }
+                
+                if (newUnlocks.length > 0) {
+                    localStorage.setItem('lastUnlockedSection', lastUnlockedSection);
+                    showUnlockNotification(newUnlocks);
+                    // Refresh the ad categories to show newly unlocked content
+                    fetchAds();
+                }
+                
+                if (shouldUpdateLoop) {
+                    updateLoopPlaylist();
+                }
+            };
+
+            const showPartyPopperEffect = () => {
+                // Create party popper overlay
+                const partyOverlay = document.createElement('div');
+                partyOverlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    z-index: 15000;
+                    pointer-events: none;
+                    overflow: hidden;
+                `;
+                
+                // Create celebration message
+                const celebrationMessage = document.createElement('div');
+                celebrationMessage.style.cssText = `
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: linear-gradient(45deg, #FFD700, #FF69B4, #00BFFF, #32CD32);
+                    background-size: 400% 400%;
+                    animation: partyGradient 2s ease infinite;
+                    color: #000;
+                    padding: 30px 40px;
+                    border-radius: 20px;
+                    font-size: 2rem;
+                    font-weight: bold;
+                    text-align: center;
+                    box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+                    animation: partyPulse 0.5s ease-in-out infinite alternate;
+                `;
+                
+                celebrationMessage.innerHTML = `
+                    🎉🎊 YOU FINISHED 5 ADS!! 🎊🎉<br>
+                    <div style="font-size: 1.5rem; margin-top: 10px;">
+                        HERE'S MORE!!!
+                    </div>
+                `;
+                
+                // Create confetti particles
+                for (let i = 0; i < 50; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.style.cssText = `
+                        position: absolute;
+                        width: 10px;
+                        height: 10px;
+                        background: ${['#FFD700', '#FF69B4', '#00BFFF', '#32CD32', '#FF4500', '#9932CC'][Math.floor(Math.random() * 6)]};
+                        top: -10px;
+                        left: ${Math.random() * 100}%;
+                        animation: confettiFall ${2 + Math.random() * 3}s linear infinite;
+                        animation-delay: ${Math.random() * 2}s;
+                    `;
+                    partyOverlay.appendChild(confetti);
+                }
+                
+                // Create party emojis
+                const partyEmojis = ['🎉', '🎊', '🥳', '🎈', '🎁', '🌟', '✨', '💥'];
+                for (let i = 0; i < 20; i++) {
+                    const emoji = document.createElement('div');
+                    emoji.style.cssText = `
+                        position: absolute;
+                        font-size: 2rem;
+                        top: ${Math.random() * 100}%;
+                        left: ${Math.random() * 100}%;
+                        animation: partyFloat ${3 + Math.random() * 2}s ease-in-out infinite;
+                        animation-delay: ${Math.random() * 1}s;
+                    `;
+                    emoji.textContent = partyEmojis[Math.floor(Math.random() * partyEmojis.length)];
+                    partyOverlay.appendChild(emoji);
+                }
+                
+                partyOverlay.appendChild(celebrationMessage);
+                document.body.appendChild(partyOverlay);
+                
+                // Remove after 4 seconds
+                setTimeout(() => {
+                    partyOverlay.remove();
+                }, 4000);
+            };
+
+            const showUnlockNotification = (unlockedSections) => {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: linear-gradient(45deg, #FFD700, #FFA500);
+                    color: #000;
+                    padding: 20px 30px;
+                    border-radius: 10px;
+                    font-size: 1.2rem;
+                    font-weight: bold;
+                    z-index: 10000;
+                    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+                    text-align: center;
+                    max-width: 400px;
+                `;
+                
+                notification.innerHTML = `
+                    🎉 SECTION UNLOCKED! 🎉<br>
+                    <div style="margin-top: 10px; font-size: 1rem;">
+                        ${unlockedSections.map(section => `"${section}"`).join('<br>')}
+                    </div>
+                    <div style="margin-top: 10px; font-size: 0.9rem; color: #444;">
+                        New ads added to your collection!
+                    </div>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.remove();
+                }, 4000);
+            };
+
+            const awardCoinsForWatchComplete = async (adId, watchTime) => {
+                try {
+                    const response = await fetch('/api/watch-complete', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ adId, watchTime })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok && result.coinsAwarded > 0) {
+                        adCoins += result.coinsAwarded;
+                        updateAdCoinDisplay();
+                        
+                        // Show coin reward notification
+                        showFeedback(`+${result.coinsAwarded} AdCoins! 🪙`);
+                    }
+                } catch (error) {
+                    console.error('Error awarding coins:', error);
+                }
             };
 
             const loadFaceApiModels = async () => {
@@ -352,7 +583,7 @@
 
             const fetchAds = async () => {
                 try {
-                    const response = await fetch(CONFIG.API_URL);
+                    const response = await fetch(`${CONFIG.API_URL}?coins=${adCoins}`);
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     const data = await response.json();
                     renderContent(data.categories);
@@ -365,7 +596,7 @@
 
             const fetchRandomAd = async () => {
                 try {
-                    const response = await fetch('http://localhost:3000/api/random-ad');
+                    const response = await fetch(`http://localhost:3000/api/random-ad?coins=${adCoins}`);
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     const randomAd = await response.json();
                     return randomAd;
@@ -373,6 +604,27 @@
                     console.error('Error fetching random ad:', error);
                     // Return a fallback ad if the request fails
                     return adPlaylist[Math.floor(Math.random() * adPlaylist.length)];
+                }
+            };
+
+            const fetchLoopAds = async () => {
+                try {
+                    const response = await fetch(`http://localhost:3000/api/loop-ads?coins=${adCoins}`);
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    const data = await response.json();
+                    return data.ads;
+                } catch (error) {
+                    console.error('Error fetching loop ads:', error);
+                    // Return basic playlist as fallback
+                    return adPlaylist.slice(0, 3);
+                }
+            };
+
+            const updateLoopPlaylist = async () => {
+                const loopAds = await fetchLoopAds();
+                if (loopAds && loopAds.length > 0) {
+                    adPlaylist = loopAds;
+                    console.log(`Updated ad loop with ${loopAds.length} ads based on ${adCoins} coins`);
                 }
             };
 
@@ -401,6 +653,10 @@
             };
 
             const openPlayerWithAd = (ad) => {
+                // Track the current ad for coin rewards
+                currentAdId = ad.id;
+                adStartTime = Date.now();
+                
                 videoModal.style.display = 'flex';
                 document.body.style.overflow = 'hidden';
 
@@ -566,15 +822,22 @@
             });
             
             adVideo.addEventListener('timeupdate', () => {
-                if (adVideo.paused || adVideo.seeking) return;
-                // Award AdCoins for every 2 seconds of watch time
-                if (Math.floor(adVideo.currentTime) % 2 === 0) {
-                    adCoins++;
-                    updateAdCoinDisplay();
-                }
+                // Remove the old coin awarding system - now we award on completion
+                // This event can be used for other tracking if needed
             });
 
             adVideo.addEventListener('ended', async () => {
+                // Award coins for successfully watching the ad
+                if (currentAdId && adStartTime) {
+                    const watchTime = (Date.now() - adStartTime) / 1000; // Convert to seconds
+                    await awardCoinsForWatchComplete(currentAdId, watchTime);
+                }
+                
+                // Check if user has watched 5 ads (every 5 ads = party time!)
+                if (adWatchCount > 0 && adWatchCount % 5 === 0) {
+                    showPartyPopperEffect();
+                }
+                
                 if (smileReplayActive) {
                     playNextSmileReplayAd();
                 } else {
@@ -591,8 +854,13 @@
             });
 
             // --- Initialization ---
+            // Reset progress for testing - user always starts fresh
+            localStorage.removeItem('adCoins');
+            localStorage.removeItem('lastUnlockedSection');
+            
             updateAdCoinDisplay();
             fetchAds();
+            updateLoopPlaylist(); // Initialize the ad loop based on current coins
             loadFaceApiModels(); // Pre-load models on page load
         });
     </script>

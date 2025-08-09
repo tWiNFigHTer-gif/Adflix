@@ -20,19 +20,7 @@ app.use(cors());
 
 // 2. Morgan Logger: Logs incoming requests to the console for easy debugging.
 //    The 'dev' format is concise and colorful.
-// Define extra/fake ads (non-uploaded)
-const extraAds = [
-  { id: 7, title: "Jingle 1", thumbnail: "https://placehold.co/400x225/141414/FFFFFF?text=Jingle1", videoUrl: `http://localhost:${PORT}/videos/jingle1.mp4`, description: "A jingle you can't forget.", annoyance_level: 7 },
-  { id: 8, title: "Jingle 2", thumbnail: "https://placehold.co/400x225/141414/FFFFFF?text=Jingle2", videoUrl: `http://localhost:${PORT}/videos/jingle2.mp4`, description: "Another unforgettable jingle.", annoyance_level: 7 },
-  { id: 9, title: "Jingle 3", thumbnail: "https://placehold.co/400x225/141414/FFFFFF?text=Jingle3", videoUrl: `http://localhost:${PORT}/videos/jingle3.mp4`, description: "Yet another jingle.", annoyance_level: 7 },
-  { id: 10, title: "Jingle 4", thumbnail: "https://placehold.co/400x225/141414/FFFFFF?text=Jingle4", videoUrl: `http://localhost:${PORT}/videos/jingle4.mp4`, description: "Jingle all the way.", annoyance_level: 7 },
-  { id: 11, title: "Jingle 5", thumbnail: "https://placehold.co/400x225/141414/FFFFFF?text=Jingle5", videoUrl: `http://localhost:${PORT}/videos/jingle5.mp4`, description: "The final jingle.", annoyance_level: 7 },
-  // Additional random ads from unspecified videos
-  { id: 12, title: "Kukku FM Radio", thumbnail: "https://placehold.co/400x225/FF6B35/FFFFFF?text=Kukku+FM", videoUrl: `http://localhost:${PORT}/videos/kukku fm.mp4`, description: "Your favorite radio station advertisement.", annoyance_level: 6 },
-  { id: 13, title: "Snickers Satisfaction", thumbnail: "https://placehold.co/400x225/8B4513/FFFFFF?text=Snickers", videoUrl: `http://localhost:${PORT}/videos/Snickers.mp4`, description: "You're not you when you're hungry.", annoyance_level: 5 },
-  { id: 14, title: "Vanamala Washing Soap", thumbnail: "https://placehold.co/400x225/87CEEB/FFFFFF?text=Vanamala", videoUrl: `http://localhost:${PORT}/videos/Vanamala Washing Soap.mp4`, description: "Clean clothes, clean conscience.", annoyance_level: 4 },
-  { id: 15, title: "Vinsmera Commercial", thumbnail: "https://placehold.co/400x225/9932CC/FFFFFF?text=Vinsmera", videoUrl: `http://localhost:${PORT}/videos/Vinsmera.mp4`, description: "The mysterious product you never knew you needed.", annoyance_level: 7 }
-];
+// No extra ads array needed - all ads are defined in baseCategories
 app.use(morgan('dev'));
 
 // 3. Static File Server: Serves video files directly. Any request to '/videos/...'
@@ -46,43 +34,111 @@ const baseCategories = [
   {
     title: "Critically Acclaimed Annoyances",
     description: "Ads so popular, you'll wonder why.",
+    section: 1,
+    unlockCost: 0,
     ads: [
-      { id: 1, title: "Man Contemplates Salad", thumbnail: "https://www.google.com/url?sa=i&url=https%3A%2F%2Ftimesofindia.indiatimes.com%2Fbusiness%2Findia-business%2Fasian-paints-faces-cci-probe-on-mkt-abuse-charges%2Farticleshow%2F122194173.cms&psig=AOvVaw1oaun1bwjihxvDA0IUI1sJ&ust=1754767023420000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCLje6uH2-44DFQAAAAAdAAAAABAE", videoUrl: `http://localhost:${PORT}/videos/ad1.mp4`, description: "He's happy. Too happy. What does he know about this salad?", annoyance_level: 2 },
-      { id: 2, title: "The Void Stares Back", thumbnail: "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.icecream.com%2Fus%2Fen%2Fbrands%2Foreo%2Fproducts%2Foreo-frozen-dessert-sandwich-singles&psig=AOvVaw0z7P6g5QqQw-klkwsxZfcK&ust=1754767150123000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCLD72Jf3-44DFQAAAAAdAAAAABAL", videoUrl: `http://localhost:${PORT}/videos/ad2.mp4`, description: "An ad for nothing. Literally nothing. Enjoy.", annoyance_level: 5 }
+      // Your local video collection with fun names
+      { id: 1, title: "Ad Attack", thumbnail: "https://placehold.co/400x225/E50914/FFFFFF?text=Ad+Attack", videoUrl: `http://localhost:${PORT}/videos/ad1.mp4`, description: "Your own custom ad content.", annoyance_level: 3 },
+      { id: 2, title: "Stream Spam", thumbnail: "https://placehold.co/400x225/E50914/FFFFFF?text=Stream+Spam", videoUrl: `http://localhost:${PORT}/videos/ad2.mp4`, description: "Another custom ad from your collection.", annoyance_level: 4 },
+      { id: 3, title: "Commercial Crush", thumbnail: "https://placehold.co/400x225/E50914/FFFFFF?text=Commercial+Crush", videoUrl: `http://localhost:${PORT}/videos/ad3.mp4`, description: "Custom advertising excellence.", annoyance_level: 2 },
+      { id: 4, title: "Promo Parade", thumbnail: "https://placehold.co/400x225/E50914/FFFFFF?text=Promo+Parade", videoUrl: `http://localhost:${PORT}/videos/ad4.mp4`, description: "More local ad content.", annoyance_level: 5 },
+      { id: 5, title: "Binge Break", thumbnail: "https://placehold.co/400x225/E50914/FFFFFF?text=Binge+Break", videoUrl: `http://localhost:${PORT}/videos/ad6.mp4`, description: "Your premium local content.", annoyance_level: 3 },
+      { id: 6, title: "Ad Avalanche", thumbnail: "https://placehold.co/400x225/8B4513/FFFFFF?text=Ad+Avalanche", videoUrl: `http://localhost:${PORT}/videos/Snickers.mp4`, description: "You're not you when you're hungry.", annoyance_level: 4 },
+      { id: 7, title: "Teaser Terror", thumbnail: "https://placehold.co/400x225/87CEEB/FFFFFF?text=Teaser+Terror", videoUrl: `http://localhost:${PORT}/videos/Vanamala Washing Soap.mp4`, description: "Clean clothes, clean conscience.", annoyance_level: 3 },
+      { id: 8, title: "Spot Storm", thumbnail: "https://placehold.co/400x225/9932CC/FFFFFF?text=Spot+Storm", videoUrl: `http://localhost:${PORT}/videos/Vinsmera.mp4`, description: "The mysterious product you never knew you needed.", annoyance_level: 4 }
     ]
   },
+  // Second Section - Unlocks at 10 coins
   {
     title: "Jingles That Will Haunt Your Dreams",
-    description: "You can't unhear them.",
+    description: "🔓 Unlocked with 10 AdCoins! You can't unhear them.",
+    section: 2,
+    unlockCost: 10,
     ads: [
-      { id: 4, title: "Rock Anthem for Paper", thumbnail: "https://www.google.com/url?sa=i&url=https%3A%2F%2Ftimesofindia.indiatimes.com%2Fbusiness%2Findia-business%2Fasian-paints-faces-cci-probe-on-mkt-abuse-charges%2Farticleshow%2F122194173.cms&psig=AOvVaw1oaun1bwjihxvDA0IUI1sJ&ust=1754767023420000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCLje6uH2-44DFQAAAAAdAAAAABAE", videoUrl: `http://localhost:${PORT}/videos/ad3.mp4`, description: "A surprisingly epic song for ordinary office supplies.", annoyance_level: 9},
-      { id: 5, title: "Whispers of Wall Paint", thumbnail: "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.jiomart.com%2Fp%2Fgroceries%2Fcadbury-five-star-home-treats-chocolate-bar-200-g%2F491186918&psig=AOvVaw1DC7uiZIxx5FzHDWmeYSnR&ust=1754767454484000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCNDk_rf4-44DFQAAAAAdAAAAABAE", videoUrl: `http://localhost:${PORT}/videos/ad4.mp4`, description: "Listen closely. The paint is telling you its secrets.", annoyance_level: 7 }
+      // Your local jingle collection with fun names
+      { id: 9, title: "Break Bomb", thumbnail: "https://placehold.co/400x225/FFD700/000000?text=Break+Bomb", videoUrl: `http://localhost:${PORT}/videos/jingle1.mp4`, description: "A jingle you can't forget.", annoyance_level: 7 },
+      { id: 10, title: "Pause Plague", thumbnail: "https://placehold.co/400x225/FFD700/000000?text=Pause+Plague", videoUrl: `http://localhost:${PORT}/videos/jingle2.mp4`, description: "Another unforgettable jingle.", annoyance_level: 6 },
+      { id: 11, title: "Jingle Jungle", thumbnail: "https://placehold.co/400x225/FFD700/000000?text=Jingle+Jungle", videoUrl: `http://localhost:${PORT}/videos/jingle3.mp4`, description: "Yet another jingle.", annoyance_level: 8 },
+      { id: 12, title: "Melody Mayhem", thumbnail: "https://placehold.co/400x225/FFD700/000000?text=Melody+Mayhem", videoUrl: `http://localhost:${PORT}/videos/jingle4.mp4`, description: "Jingle all the way.", annoyance_level: 9 },
+      { id: 13, title: "Tune Tornado", thumbnail: "https://placehold.co/400x225/FFD700/000000?text=Tune+Tornado", videoUrl: `http://localhost:${PORT}/videos/jingle5.mp4`, description: "The final jingle.", annoyance_level: 8 },
+      { id: 14, title: "Radio Rampage", thumbnail: "https://placehold.co/400x225/FF6B35/000000?text=Radio+Rampage", videoUrl: `http://localhost:${PORT}/videos/kukku fm.mp4`, description: "Your favorite radio station advertisement.", annoyance_level: 6 }
+    ]
+  },
+  // Third Section - Unlocks at 35 coins
+  {
+    title: "Ads About Ads",
+    description: "🔓 Unlocked with 35 AdCoins! To watch the ad, you must become the ad.",
+    section: 3,
+    unlockCost: 35,
+    ads: [
+      { id: 6, title: "The AdFlix Story", thumbnail: "https://placehold.co/400x225/8A2BE2/FFFFFF?text=AdFlix+Meta", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4", description: "An inspiring ad about our mission to bring you more ads.", annoyance_level: 8 },
+      // High-annoyance local videos
+      { id: 31, title: "Local Ad 4", thumbnail: "https://placehold.co/400x225/8A2BE2/FFFFFF?text=Local+Ad4", videoUrl: `http://localhost:${PORT}/videos/ad4.mp4`, description: "More local ad content.", annoyance_level: 5 },
+      { id: 15, title: "Vinsmera Commercial", thumbnail: "https://placehold.co/400x225/8A2BE2/FFFFFF?text=Vinsmera", videoUrl: `http://localhost:${PORT}/videos/Vinsmera.mp4`, description: "The mysterious product you never knew you needed.", annoyance_level: 9 }
+    ]
+  },
+  // Additional premium sections
+  {
+    title: "Premium Annoyance Collection",
+    description: "🔓 Unlocked with 20 AdCoins! Even more sophisticated irritation.",
+    section: 4,
+    unlockCost: 20,
+    ads: [
+      { id: 16, title: "Luxury Toilet Paper Saga", thumbnail: "https://placehold.co/400x225/FFD700/000000?text=Luxury+TP", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4", description: "A 3-part epic about premium bathroom tissue.", annoyance_level: 8 },
+      { id: 17, title: "Emotional Journey of a Spoon", thumbnail: "https://placehold.co/400x225/FFD700/000000?text=Spoon+Story", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4", description: "Follow the life-changing story of cutlery.", annoyance_level: 6 }
     ]
   },
   {
-    title: "Ads About Ads",
-    description: "To watch the ad, you must become the ad.",
+    title: "Celebrity Endorsement Nightmares",
+    description: "🔓 Famous people selling things they probably never use.",
+    section: 4,
+    unlockCost: 20,
     ads: [
-      { id: 6, title: "The AdFlix Story", thumbnail: "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.swadeshsquare.com%2Fproducts%2Fcenter-fruit-fruits-flavour-pack-of-20&psig=AOvVaw16WIdFdaTQ4mhq6zuWiSFo&ust=1754767648280000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCJiDg4T5-44DFQAAAAAdAAAAABAM", videoUrl: `http://localhost:${PORT}/videos/ad6.mp4`, description: "An inspiring ad about our mission to bring you more ads.", annoyance_level: 8 }
+      { id: 18, title: "Actor Loves Generic Brand", thumbnail: "https://placehold.co/400x225/FFD700/000000?text=Celebrity+Ad", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4", description: "Definitely not paid acting. Definitely genuine emotion.", annoyance_level: 7 },
+      { id: 19, title: "Influencer's Breakfast Drama", thumbnail: "https://placehold.co/400x225/FFD700/000000?text=Breakfast+Drama", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4", description: "Watch someone get way too excited about cereal.", annoyance_level: 5 }
+    ]
+  },
+  {
+    title: "Ultra Mega Premium Chaos",
+    description: "🔓 Unlocked with 50 AdCoins! The final frontier of advertising hell.",
+    section: 5,
+    unlockCost: 50,
+    ads: [
+      { id: 20, title: "The AdFlix Documentary", thumbnail: "https://placehold.co/400x225/8A2BE2/FFFFFF?text=Documentary", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4", description: "A documentary about making ads about ads.", annoyance_level: 10 },
+      { id: 21, title: "Inception Ad", thumbnail: "https://placehold.co/400x225/8A2BE2/FFFFFF?text=Ad+Inception", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4", description: "An ad within an ad within an ad. We need to go deeper.", annoyance_level: 9 }
+    ]
+  },
+  {
+    title: "Exclusive VIP Torment",
+    description: "🔓 The most exclusive ads money can't buy.",
+    section: 5,
+    unlockCost: 50,
+    ads: [
+      { id: 22, title: "The Secret Menu Ad", thumbnail: "https://placehold.co/400x225/8A2BE2/FFFFFF?text=Secret+Menu", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4", description: "An ad for things that don't exist on any menu.", annoyance_level: 8 },
+      { id: 23, title: "Time Travel Cleaning Products", thumbnail: "https://placehold.co/400x225/8A2BE2/FFFFFF?text=Time+Travel", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4", description: "Clean your past mistakes with future technology.", annoyance_level: 10 }
     ]
   }
 ];
 
-function getRandomExtraAds(count) {
-  // Shuffle and pick 'count' random extra ads
-  const shuffled = extraAds.slice().sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, count);
-}
-
-function getRandomizedCategories() {
-  // For each category, add 1-2 random extra ads
-  return baseCategories.map(category => {
-    const extraCount = Math.floor(Math.random() * 2) + 1; // 1 or 2
-    const randomExtras = getRandomExtraAds(extraCount);
-    return {
-      ...category,
-      ads: [...category.ads, ...randomExtras]
-    };
+function getRandomizedCategories(userCoins = 0) {
+  // Determine which sections are unlocked based on coins
+  const unlockedSections = [1]; // Section 1 is always unlocked
+  if (userCoins >= 10) {
+    unlockedSections.push(2); // Jingles That Will Haunt Your Dreams
+  }
+  if (userCoins >= 20) {
+    unlockedSections.push(4); // Premium sections
+  }
+  if (userCoins >= 35) {
+    unlockedSections.push(3); // Ads About Ads
+  }
+  if (userCoins >= 50) {
+    unlockedSections.push(5); // Ultra premium sections
+  }
+  
+  // Filter categories based on unlocked sections - NO random extra ads
+  return baseCategories.filter(category => {
+    return unlockedSections.includes(category.section);
   });
 }
 
@@ -100,29 +156,117 @@ app.get('/', (req, res) => {
 /**
  * @route   GET /api/ads
  * @desc    Get all ad categories and their ads. This is the primary endpoint for the frontend.
+ * @query   coins - Number of AdCoins the user has (for section unlocking)
  * @access  Public
  */
 app.get('/api/ads', (req, res) => {
-  const randomizedCategories = getRandomizedCategories();
+  const userCoins = parseInt(req.query.coins) || 0;
+  const randomizedCategories = getRandomizedCategories(userCoins);
   res.status(200).json({ categories: randomizedCategories });
 });
 
 /**
  * @route   GET /api/random-ad
  * @desc    Get a random ad from all available ads (for playing after each ad)
+ * @query   coins - Number of AdCoins the user has (for section filtering)
  * @access  Public
  */
 app.get('/api/random-ad', (req, res) => {
-  // Combine all ads from base categories and extra ads
-  const allAds = [];
-  baseCategories.forEach(category => {
-    allAds.push(...category.ads);
-  });
-  allAds.push(...extraAds);
+  const userCoins = parseInt(req.query.coins) || 0;
   
-  // Return a random ad
-  const randomAd = allAds[Math.floor(Math.random() * allAds.length)];
+  // Get ads for the playing loop based on annoyance levels and coin thresholds
+  const loopAds = getLoopAds(userCoins);
+  
+  // Return a random ad from the loop
+  const randomAd = loopAds[Math.floor(Math.random() * loopAds.length)];
   res.status(200).json(randomAd);
+});
+
+/**
+ * @route   GET /api/loop-ads
+ * @desc    Get all ads that should be in the playing loop based on user's coins
+ * @query   coins - Number of AdCoins the user has
+ * @access  Public
+ */
+app.get('/api/loop-ads', (req, res) => {
+  const userCoins = parseInt(req.query.coins) || 0;
+  const loopAds = getLoopAds(userCoins);
+  res.status(200).json({ ads: loopAds, count: loopAds.length });
+});
+
+function getLoopAds(userCoins = 0) {
+  const loopAds = [];
+  
+  // Rule 1: Always include ads with annoyance < 5 from "Critically Acclaimed Annoyances"
+  const criticallyAcclaimedCategory = baseCategories.find(cat => cat.title === "Critically Acclaimed Annoyances");
+  if (criticallyAcclaimedCategory) {
+    criticallyAcclaimedCategory.ads.forEach(ad => {
+      if (ad.annoyance_level < 5) {
+        loopAds.push(ad);
+      }
+    });
+  }
+  
+  // Rule 2: At 10+ coins, include ads with annoyance < 8 from "Jingles That Will Haunt Your Dreams"
+  if (userCoins >= 10) {
+    const jinglesCategory = baseCategories.find(cat => cat.title === "Jingles That Will Haunt Your Dreams");
+    if (jinglesCategory) {
+      jinglesCategory.ads.forEach(ad => {
+        if (ad.annoyance_level < 8) {
+          loopAds.push(ad);
+        }
+      });
+    }
+  }
+  
+  // Rule 3: At 35+ coins, include ads with annoyance >= 8 from "Jingles That Will Haunt Your Dreams"
+  if (userCoins >= 35) {
+    const jinglesCategory = baseCategories.find(cat => cat.title === "Jingles That Will Haunt Your Dreams");
+    if (jinglesCategory) {
+      jinglesCategory.ads.forEach(ad => {
+        if (ad.annoyance_level >= 8) {
+          loopAds.push(ad);
+        }
+      });
+    }
+    
+    // Also include "Ads About Ads" section
+    const adsAboutAdsCategory = baseCategories.find(cat => cat.title === "Ads About Ads");
+    if (adsAboutAdsCategory) {
+      adsAboutAdsCategory.ads.forEach(ad => {
+        loopAds.push(ad);
+      });
+    }
+  }
+  
+  return loopAds;
+}
+
+/**
+ * @route   POST /api/watch-complete
+ * @desc    Award coins for successfully watching an ad
+ * @body    { adId: number, watchTime: number }
+ * @access  Public
+ */
+app.post('/api/watch-complete', express.json(), (req, res) => {
+  const { adId, watchTime } = req.body;
+  
+  // Validate that the ad was actually watched (at least 5 seconds)
+  if (!adId || !watchTime || watchTime < 5) {
+    return res.status(400).json({ 
+      error: "Invalid watch data", 
+      coinsAwarded: 0 
+    });
+  }
+  
+  // Award 2 coins for successfully watching an ad
+  const coinsAwarded = 2;
+  
+  res.status(200).json({ 
+    message: "Ad watch completed successfully!",
+    coinsAwarded: coinsAwarded,
+    adId: adId
+  });
 });
 
 // --- NEW "USELESS" ENDPOINTS ---
