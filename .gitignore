@@ -35,7 +35,7 @@ ehthumbs.db
 Thumbs.db
 
 # Video files (too large for git)
-*.mp4
+
 *.avi
 *.mov
 *.wmv
