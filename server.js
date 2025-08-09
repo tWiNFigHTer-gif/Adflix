@@ -7,6 +7,7 @@ const express = require('express'); // The web server framework
 const cors = require('cors'); // Middleware to allow requests from the frontend
 const path = require('path'); // Node.js module for handling file paths
 const morgan = require('morgan'); // Middleware for logging HTTP requests
+const fs = require('fs'); // File system module for debugging
 
 // --- Server Configuration ---
 const app = express();
@@ -166,6 +167,44 @@ function getRandomizedCategories(userCoins = 0, baseUrl = '') {
  */
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+/**
+ * @route   GET /debug
+ * @desc    Debug endpoint to check server status and environment
+ * @access  Public
+ */
+app.get('/debug', (req, res) => {
+  const debugInfo = {
+    status: 'Server is running!',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    port: PORT,
+    baseUrl: getBaseUrl(req),
+    requestHeaders: {
+      host: req.get('host'),
+      protocol: req.protocol
+    },
+    availableRoutes: [
+      'GET /',
+      'GET /debug',
+      'GET /api/ads',
+      'GET /api/random-ad',
+      'GET /api/loop-ads',
+      'POST /api/watch-complete',
+      'GET /api/ads/unreliable',
+      'GET /api/ads/slow'
+    ],
+    sampleVideoUrl: `${getBaseUrl(req)}/videos/ad1.mp4`,
+    filesExist: {
+      indexHtml: fs.existsSync(path.join(__dirname, 'index.html')),
+      serverJs: fs.existsSync(path.join(__dirname, 'server.js')),
+      videosDir: fs.existsSync(path.join(__dirname, 'videos')),
+      packageJson: fs.existsSync(path.join(__dirname, 'package.json'))
+    }
+  };
+  
+  res.status(200).json(debugInfo);
 });
 
 /**
