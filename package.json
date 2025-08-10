@@ -4,7 +4,12 @@
   "description": "Useless backend for a useless project, now with more features!",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "pkill -f 'node server.js' 2>/dev/null || true && node server.js & sleep 5 && curl -f http://localhost:3000/debug && pkill -f 'node server.js'",
+    "docker:build": "docker build -t adflix .",
+    "docker:run": "docker run -p 3000:3000 adflix",
+    "docker:compose": "docker-compose up --build"
   },
   "dependencies": {
     "cors": "^2.8.5",
